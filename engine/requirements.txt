@@ -1,0 +1,27 @@
+# Core video clipping engine only (CLI: python main.py -i … -o …).
+# Excludes cloud/billing/auth: stripe, PyJWT, Authlib, SQLAlchemy, Alembic,
+# FastAPI/uvicorn, boto3, beautifulsoup4, httpx (those belong to NestJS / python-service).
+
+# Scene / reframe / vision
+scenedetect==0.7
+transnetv2-pytorch==1.0.5
+ultralytics==8.4.46
+torch==2.11.0
+torchvision==0.26.0
+mediapipe==0.10.14
+tqdm==4.67.3
+Pillow==12.2.0
+
+# Download (main.py --url path; SaaS usually downloads upstream)
+yt-dlp
+
+# Transcription — keep both free (faster_whisper) and paid (Deepgram) paths
+faster-whisper==1.2.1
+deepgram-sdk==7.8.1
+py3langid==0.3.0
+# Optional Parakeet backend (TRANSCRIBE_BACKEND=parakeet) — install separately:
+#   onnx-asr  (+ onnxruntime or onnxruntime-gpu)
+
+# Gemini moment-finding / layout picker (gemini_worker uses pydantic via google-genai)
+google-genai==1.75.0
+python-dotenv==1.2.2

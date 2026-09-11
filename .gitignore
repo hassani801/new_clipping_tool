@@ -1,32 +1,57 @@
 # Dependencies
 node_modules/
 .npm
+.pnpm-store
 
-# Build outputs
-.next/
+# Python Virtual Environments & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+env/
+ENV/
+
+# Build & Output Directories
 dist/
 build/
 out/
+.next/
+*.tsbuildinfo
 
-# Database
+# Databases & SQLite
 *.sqlite
 *.sqlite3
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 
-# Environment
+# Environment Variables & Secrets
 .env
 .env.local
 .env.*.local
+!.env.example
+
+# Temporary Media Storage & Engine Scratch
+storage/
+*.mp4
+*.mkv
+*.wav
+*.mp3
+*.aac
 
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS
+# System & Editor Files
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.suo
@@ -34,6 +59,3 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
-
-# TypeScript
-*.tsbuildinfo

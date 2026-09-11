@@ -1,0 +1,35 @@
+# Standalone OpenShorts engine service (independent of the Next.js app).
+# Build context is the repo root (clipping_tool).
+services:
+  openshort-engine:
+    build:
+      context: ..
+      dockerfile: python-service/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      STORAGE_BACKEND: "local"
+      STORAGE_ROOT: "/data/storage"
+      OPENSHORT_ROOT: "/app/engine"
+      MAX_CONCURRENT_JOBS: "1"
+      ENGINE_TYPE: "openshort"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      # Public base URL used to build absolute clip URLs in results/callbacks.
+      # Set to http://localhost:8001 for local testing, or the host in prod.
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:8001}"
+      # NestJS backend internal callback target (port 3001, not frontend 3000).
+      BACKEND_INTERNAL_URL: "${BACKEND_INTERNAL_URL:-http://host.docker.internal:3001}"
+      PYTHON_ENGINE_SECRET: "${PYTHON_ENGINE_SECRET:-change-me-secret-token}"
+      STAGE_NAME: "local"
+    volumes:
+      - engine-storage:/data/storage
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8001/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  engine-storage:

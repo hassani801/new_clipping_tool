@@ -1,0 +1,11 @@
+.git
+.kilo
+backend
+frontend
+storage
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+**/node_modules
+*.mp4
