@@ -37,16 +37,16 @@ doesn't have to rely only on polling for results.
 | `PUBLIC_BASE_URL` | — | Absolute base URL used to build `clipUrl` in results/callbacks. |
 | `MAX_CONCURRENT_JOBS` | `1` | In-process concurrency bound. |
 | `PORT` / `HOST` | `8001` / `0.0.0.0` | Bind address. |
-| `BACKEND_INTERNAL_URL` | `http://127.0.0.1:3001` | NestJS callback target (`NEXTJS_INTERNAL_URL` still accepted as alias). |
+| `BACKEND_INTERNAL_URL` | `http://127.0.0.1:3001` | NestJS backend callback target. |
 | `PYTHON_ENGINE_SECRET` | `change-me-secret-token` | Shared secret with the NestJS backend. |
 | `ENGINE_TYPE` | `openshort` | `openshort` (real) or `mock`. |
 | `STAGE_NAME` | `local` | Deployment label in `/health`. |
 | `TRANSCRIPT_PROVIDER` | tier-selected | Force one transcript provider for ALL users (debug override). Unset: free users get `faster_whisper`, paid users get `deepgram`. |
 | `DEEPGRAM_API_KEY` | — | Required when the `deepgram` provider runs. |
-| `PAID_USER_IDS` | — | Comma-separated user ids seeded as "paid" tier (stub until real auth/billing — Phase 8). |
-| `FREE_TIER_DAILY_JOB_LIMIT` | `2` | Free tier: max jobs started per day (in-flight + completed today). |
-| `FREE_TIER_MAX_VIDEO_SECONDS` | `600` | Free tier max source duration, checked before processing. |
-| `PAID_TIER_MAX_VIDEO_SECONDS` | `1800` | Paid tier max source duration, checked before processing. |
+| `PAID_USER_IDS` | — | Dev-only paid-tier seed list; ignored unless `DEV_ALLOW_PAID_USER_IDS=1`. |
+| `FREE_TIER_DAILY_JOB_CAP` | `2` | Free tier: max jobs started per day (in-flight + completed today). |
+| `FREE_TIER_MAX_DURATION_SECONDS` | `600` | Free tier max source duration, checked before processing. |
+| `PAID_TIER_MAX_DURATION_SECONDS` | `1800` | Paid tier max source duration, checked before processing. |
 
 ## Run locally
 

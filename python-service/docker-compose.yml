@@ -14,11 +14,22 @@ services:
       MAX_CONCURRENT_JOBS: "1"
       ENGINE_TYPE: "openshort"
       GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      GEMINI_MODEL: "${GEMINI_MODEL:-gemini-3.1-flash-lite}"
+      # Engine layout features (enabled for SaaS runs; engine defaults are off):
+      # Gemini per-video layout picker, two-speaker SPLIT stacking, and
+      # active-speaker gating of SPLIT scenes.
+      AUTO_LAYOUT: "1"
+      SPLIT_LAYOUT: "1"
+      SPEAKER_SIGNAL: "1"
       # Public base URL used to build absolute clip URLs in results/callbacks.
       # Set to http://localhost:8001 for local testing, or the host in prod.
       PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:8001}"
-      # NestJS backend internal callback target (port 3001, not frontend 3000).
-      BACKEND_INTERNAL_URL: "${BACKEND_INTERNAL_URL:-http://host.docker.internal:3001}"
+      # NestJS backend callback target. The backend always runs on the Docker
+      # host (port 3001), so this is hardcoded to the host bridge address.
+      # NOTE: do NOT interpolate python-service/.env here — that file holds
+      # the LOCAL value (127.0.0.1:3001), which is unreachable from inside
+      # the container.
+      BACKEND_INTERNAL_URL: "http://host.docker.internal:3001"
       PYTHON_ENGINE_SECRET: "${PYTHON_ENGINE_SECRET:-change-me-secret-token}"
       STAGE_NAME: "local"
     volumes:

@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { PRO_PRICE_PKR, PRO_PRICE_ANNUAL_PKR } from '@/lib/constants';
 import { formatPKR } from '@/lib/utils';
 import { Check, Sparkles, ShieldCheck } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { UserProfile } from '@/lib/types';
 
 interface UpgradeModalProps {
@@ -24,8 +23,6 @@ export function UpgradeModal({
   onUserUpdated,
 }: UpgradeModalProps) {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const isPro = currentUser?.tier === 'pro';
 
@@ -40,32 +37,6 @@ export function UpgradeModal({
     'Auto-face reframe (9:16, 1:1, 16:9)',
     '1-click direct publishing to TikTok & Reels',
   ];
-
-  const handleToggleTier = async () => {
-    setLoading(true);
-    try {
-      const newTier = isPro ? 'free' : 'pro';
-      if (currentUser) {
-        onUserUpdated({ ...currentUser, tier: newTier });
-      }
-      if (newTier === 'pro') {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-          onClose();
-        }, 1200);
-      } else {
-        onClose();
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Modal
@@ -165,6 +136,14 @@ export function UpgradeModal({
           <span>7-day full money back guarantee • Cancel anytime with 1 click</span>
         </div>
 
+        {/* Billing not available notice */}
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+          <span className="text-base">🚧</span>
+          <span>
+            <strong>Billing Coming Soon:</strong> Online payments aren&apos;t wired up yet, so plan changes are disabled for now.
+          </span>
+        </div>
+
         {/* Modal Actions */}
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button variant="ghost" size="md" onClick={onClose}>
@@ -174,20 +153,12 @@ export function UpgradeModal({
           <Button
             variant="primary"
             size="md"
-            loading={loading}
-            onClick={handleToggleTier}
+            disabled
             className="px-6"
           >
-            {success ? (
-              <span className="flex items-center gap-1.5 text-white">
-                <Check className="w-4 h-4" />
-                Upgraded Successfully!
-              </span>
-            ) : isPro ? (
-              'Downgrade to Free Tier (Test)'
-            ) : (
-              `Subscribe for ${formatPKR(PRO_PRICE_PKR)}/mo`
-            )}
+            {isPro
+              ? 'Pro Plan Active'
+              : `Subscribe (${formatPKR(PRO_PRICE_PKR)}/mo) — Coming Soon`}
           </Button>
         </div>
       </div>

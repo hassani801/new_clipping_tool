@@ -122,6 +122,14 @@ def build_environment(input_data: EngineInput) -> Dict[str, str]:
         )
     logger.info(f"[adapter] transcript_provider={env['TRANSCRIPT_PROVIDER']}")
 
+    # Watermark: free-tier jobs only (tier decision made before enqueue — see
+    # services/tier_service). The engine reads WATERMARK == "1" (main.py). Paid
+    # output must stay clean, so 0 is explicit: it also beats any WATERMARK the
+    # service process itself inherited, which env.copy() above would otherwise
+    # leak into a paid job.
+    env["WATERMARK"] = "1" if getattr(input_data, "watermark_enabled", False) else "0"
+    logger.info(f"[adapter] watermark={'on' if env['WATERMARK'] == '1' else 'off'}")
+
     return env
 
 

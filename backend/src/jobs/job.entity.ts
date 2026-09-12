@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   Index,
@@ -86,6 +87,11 @@ export class Job {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  // Refreshed on every save: the timeout sweep treats a stale updatedAt as
+  // evidence the job (and its engine updates) died mid-render.
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Column({ type: 'datetime', nullable: true })
   completedAt: Date | null;

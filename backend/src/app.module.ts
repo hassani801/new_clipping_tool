@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottleModule } from './throttle/throttle.module.js';
 import { RateLimitGuard } from './throttle/rate-limit.guard.js';
 import { APP_GUARD } from '@nestjs/core';
@@ -24,11 +25,15 @@ import { CampaignsModule } from './campaigns/campaigns.module.js';
 import { InternalJobsModule } from './internal/internal-jobs.module.js';
 
 import { InitialSchema1700000000000 } from './migrations/1700000000000-InitialSchema.js';
+import { AddJobUpdatedAt1757000000000 } from './migrations/1757000000000-AddJobUpdatedAt.js';
 
 @Module({
   imports: [
     // ── Global Config (.env) ───────────────────────────────────────────────
     ConfigModule.forRoot({ isGlobal: true }),
+
+    // ── Cron scheduler (jobs-timeout sweep) ────────────────────────────────
+    ScheduleModule.forRoot(),
 
     // ── Rate Limiting (in-house fixed-window limiter) ───────────────────────
     ThrottleModule.forRoot([
@@ -50,7 +55,10 @@ import { InitialSchema1700000000000 } from './migrations/1700000000000-InitialSc
             config.get<string>('DATABASE_PATH') ||
             config.get<string>('DB_DATABASE', 'db.sqlite'),
           entities: [User, Job, CampaignListing, CampaignSubmissionLog],
-          migrations: [InitialSchema1700000000000],
+          migrations: [
+            InitialSchema1700000000000,
+            AddJobUpdatedAt1757000000000,
+          ],
           migrationsRun: isProd,
           synchronize: !isProd, // auto-sync only in development; migrations in production
           logging: false,

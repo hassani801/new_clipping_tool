@@ -46,11 +46,13 @@ function PublishModalInner({
   const handlePublish = async () => {
     setPosting(true);
     try {
-      const existing = clip.publishedTo || [];
-      const updatedPlatforms = Array.from(new Set([...existing, ...selectedPlatforms]));
+      const existing = clip.publishedPlatforms || [];
+      const updatedPlatforms = Array.from(
+        new Set([...existing, ...selectedPlatforms]),
+      );
       const updatedClip: GeneratedClip = {
         ...clip,
-        publishedTo: updatedPlatforms,
+        publishedPlatforms: updatedPlatforms,
       };
       onClipUpdated(updatedClip);
       confetti({

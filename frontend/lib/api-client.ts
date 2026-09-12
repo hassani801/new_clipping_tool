@@ -139,6 +139,15 @@ export async function getMe(): Promise<AuthUser | null> {
   }
 }
 
+export async function updateProfile(
+  name: string,
+): Promise<{ message: string; user: AuthUser }> {
+  return apiRequest('/users/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+  });
+}
+
 // ── Jobs / clips ────────────────────────────────────────────────────────────
 
 export async function createJob(

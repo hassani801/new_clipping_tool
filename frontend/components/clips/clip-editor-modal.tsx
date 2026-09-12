@@ -72,7 +72,7 @@ function ClipEditorModalInner({
           <strong>Coming Soon:</strong> Clip editing &amp; re-rendering is in development. Your clip metadata changes will be saved locally but won&apos;t re-render the video yet.
         </span>
       </div>
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
       {/* Left: 9:16 Vertical Video Preview Simulation */}
       <div className="md:col-span-5 flex flex-col items-center">
@@ -193,15 +193,21 @@ function ClipEditorModalInner({
             <span>Animated Caption Style</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
-            {CAPTION_STYLES.map((style) => (
+            {CAPTION_STYLES.map((style) => {
+              const isComingSoon = style.badge === 'Coming Soon';
+              return (
               <button
                 key={style.id}
                 type="button"
                 onClick={() => setCaptionStyle(style.id)}
+                disabled={isComingSoon}
+                title={isComingSoon ? 'This caption style is not available yet' : undefined}
                 className={`p-2.5 rounded-xl border text-left transition text-xs ${
-                  captionStyle === style.id
-                    ? 'bg-[#1C1C22] border-pink-500 text-[#F5F5F7] shadow-sm'
-                    : 'bg-[#0A0A0C] border-white/5 text-[#A1A1AA] hover:text-[#F5F5F7]'
+                  isComingSoon
+                    ? 'bg-[#0A0A0C] border-white/5 text-[#71717A] opacity-40 cursor-not-allowed'
+                    : captionStyle === style.id
+                      ? 'bg-[#1C1C22] border-pink-500 text-[#F5F5F7] shadow-sm'
+                      : 'bg-[#0A0A0C] border-white/5 text-[#A1A1AA] hover:text-[#F5F5F7]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -214,7 +220,8 @@ function ClipEditorModalInner({
                   {style.description}
                 </p>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -253,6 +260,7 @@ function ClipEditorModalInner({
           </Button>
         </div>
       </div>
+    </div>
     </div>
   );
 }

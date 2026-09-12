@@ -27,6 +27,11 @@ def _payload(job_id="job_test_1", **overrides):
 def harness(monkeypatch):
     """Isolate the route's collaborators and capture enqueue calls."""
     from app.api import routes_jobs
+    from app.config import settings
+
+    # Disable the X-Engine-Secret gate so these tests exercise tier logic
+    # directly (the gate itself is a request-time dependency, not under test).
+    monkeypatch.setattr(settings, "PYTHON_ENGINE_SECRET", "")
 
     captured = {}
 
@@ -66,6 +71,7 @@ def test_free_user_selects_faster_whisper(harness):
     res = client.post("/jobs", json=_payload(userId="free_1"))
     assert res.status_code == 202
     assert captured["provider"] == "faster_whisper"
+    assert captured["watermark_enabled"] is True
     assert captured["tier"] == "free"
     assert captured["user_id"] == "free_1"
 
@@ -76,6 +82,7 @@ def test_paid_user_selects_deepgram(harness):
     res = client.post("/jobs", json=_payload(userId="paid_1"))
     assert res.status_code == 202
     assert captured["provider"] == "deepgram"
+    assert captured["watermark_enabled"] is False
     assert captured["tier"] == "paid"
     assert captured["max_duration_seconds"] == 1800
 

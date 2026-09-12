@@ -8,6 +8,10 @@ assigns per browser (``anon_uid`` cookie) or passes as an explicit test hook
 list so paid users can be simulated locally:
 
   - ``PAID_USER_IDS`` (env): comma-separated user ids treated as "paid".
+    DEV/TESTING ONLY — it is ignored unless ``DEV_ALLOW_PAID_USER_IDS=1``
+    (see app/config.py), so it can never silently override real tier data
+    in production. Tier passed per-request by the NestJS backend is
+    authoritative (see routes_jobs.py).
   - every other id — and the ``"anonymous"`` default — is "free".
 
 Provider selection is tier-driven: free -> faster-whisper (self-hosted, zero
@@ -68,6 +72,10 @@ class TierService:
         if user.tier == UserTier.PAID:
             return "deepgram"
         return "faster_whisper"
+
+    def watermark_enabled(self, user: UserRecord) -> bool:
+        """Free-tier jobs burn the OpenShorts watermark; paid output stays clean."""
+        return user.tier == UserTier.FREE
 
     def max_duration_seconds(self, user: UserRecord) -> int:
         if user.tier == UserTier.PAID:

@@ -40,5 +40,9 @@ export class CreateJobDto {
 
   @IsOptional()
   @IsString()
+  @IsIn(['karaoke'], {
+    message:
+      'captionPreset must be one of: karaoke (other styles are not implemented yet)',
+  })
   captionPreset?: string;
 }

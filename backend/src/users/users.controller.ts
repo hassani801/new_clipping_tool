@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AdminGuard } from '../common/guards/admin.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { UpdateTierDto } from './dto/update-tier.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 
 @Controller('users')
 export class UsersController {
@@ -22,6 +23,26 @@ export class UsersController {
   @Get('me')
   getMe(@CurrentUser() user: User) {
     return this.usersService.sanitizeUser(user);
+  }
+
+  /**
+   * Self-service profile update (display name only — email/password changes
+   * are out of scope until account management lands).
+   */
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @CurrentUser('id') userId: string,
+    @Body() updateDto: UpdateProfileDto,
+  ) {
+    const updated = await this.usersService.updateProfile(userId, {
+      name: updateDto.name,
+    });
+    return {
+      message: 'Profile updated',
+      user: this.usersService.sanitizeUser(updated),
+    };
   }
 
   /**

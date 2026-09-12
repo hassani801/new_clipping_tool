@@ -10,6 +10,9 @@ class EngineInput(BaseModel):
     # Transcript provider for the OpenShorts subprocess ("faster_whisper" |
     # "deepgram") — resolved from the user's tier before the job was queued.
     transcript_provider: str = "faster_whisper"
+    # Watermark flag for the OpenShorts subprocess — also a tier decision made
+    # before the job was queued (free -> watermarked, paid -> clean).
+    watermark_enabled: bool = False
 
 class EngineClipResult(BaseModel):
     id: str

@@ -98,6 +98,11 @@ export function Sidebar({
     ...(isAdmin
       ? [
           {
+            label: 'Admin: Users',
+            href: '/admin/users',
+            icon: ShieldCheck,
+          },
+          {
             label: 'Admin: Campaigns',
             href: '/admin/campaign-listings',
             icon: ShieldCheck,

@@ -118,17 +118,41 @@ def test_pipeline_passes_tier_provider_to_engine(tmp_path, monkeypatch):
     class RecordingEngine(_FakeEngine):
         async def process(self, input_data, progress_callback=None):
             seen["transcript_provider"] = input_data.transcript_provider
+            seen["watermark_enabled"] = input_data.watermark_enabled
             return EngineOutput(job_id=input_data.job_id, status=JobStatus.COMPLETED, clips=[])
 
     manager.default_engine = RecordingEngine()
     state = JobExecutionState(
         "job_prov", user_id="paid_1", tier="paid",
-        provider="deepgram", max_duration_seconds=1800)
+        provider="deepgram", watermark_enabled=False, max_duration_seconds=1800)
     manager.jobs["job_prov"] = state
 
     asyncio.run(manager._run_pipeline(state, _request(tmp_path, "job_prov"), manager.default_engine))
 
     assert seen["transcript_provider"] == "deepgram"
+    assert seen["watermark_enabled"] is False
+
+
+def test_pipeline_passes_watermark_flag_to_engine_for_free_tier(tmp_path, monkeypatch):
+    monkeypatch.setattr(bw, "probe_duration_seconds", lambda path: 50.0)
+    usage = _usage(tmp_path)
+    manager = _manager(tmp_path, usage, monkeypatch)
+    seen = {}
+
+    class RecordingEngine(_FakeEngine):
+        async def process(self, input_data, progress_callback=None):
+            seen["watermark_enabled"] = input_data.watermark_enabled
+            return EngineOutput(job_id=input_data.job_id, status=JobStatus.COMPLETED, clips=[])
+
+    manager.default_engine = RecordingEngine()
+    state = JobExecutionState(
+        "job_wm", user_id="free_1", tier="free",
+        provider="faster_whisper", watermark_enabled=True, max_duration_seconds=600)
+    manager.jobs["job_wm"] = state
+
+    asyncio.run(manager._run_pipeline(state, _request(tmp_path, "job_wm"), manager.default_engine))
+
+    assert seen["watermark_enabled"] is True
 
 
 def test_in_flight_count_only_counts_active_jobs():

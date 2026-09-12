@@ -18,6 +18,12 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const normalizedEmail = email.trim().toLowerCase();
     return this.userRepository.findOne({ where: { email: normalizedEmail } });
@@ -66,6 +72,18 @@ export class UsersService {
     user.subscriptionStatus = subscriptionStatus;
     user.subscriptionExpiresAt = expiresAt;
 
+    return this.userRepository.save(user);
+  }
+
+  async updateProfile(userId: string, data: { name?: string }): Promise<User> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException(`User ${userId} not found`);
+    }
+    if (typeof data.name === 'string') {
+      const trimmed = data.name.trim();
+      user.name = trimmed.length > 0 ? trimmed : null;
+    }
     return this.userRepository.save(user);
   }
 

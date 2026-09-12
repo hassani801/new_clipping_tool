@@ -403,15 +403,21 @@ export default function CreatePage() {
                 <span>Select Animated Caption Aesthetic</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {CAPTION_STYLES.map((style) => (
+                {CAPTION_STYLES.map((style) => {
+                  const isComingSoon = style.badge === 'Coming Soon';
+                  return (
                   <button
                     key={style.id}
                     type="button"
                     onClick={() => setCaptionStyle(style.id)}
+                    disabled={isComingSoon}
+                    title={isComingSoon ? 'This caption style is not available yet' : undefined}
                     className={`p-3.5 rounded-xl border text-left transition flex flex-col justify-between gap-3 ${
-                      captionStyle === style.id
-                        ? 'bg-[#1C1C22] border-pink-500 shadow-lg shadow-pink-500/10'
-                        : 'bg-[#0A0A0C] border-white/5 opacity-80 hover:opacity-100'
+                      isComingSoon
+                        ? 'bg-[#0A0A0C] border-white/5 opacity-40 cursor-not-allowed'
+                        : captionStyle === style.id
+                          ? 'bg-[#1C1C22] border-pink-500 shadow-lg shadow-pink-500/10'
+                          : 'bg-[#0A0A0C] border-white/5 opacity-80 hover:opacity-100'
                     }`}
                   >
                     <div>
@@ -435,7 +441,8 @@ export default function CreatePage() {
                       </span>
                     </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

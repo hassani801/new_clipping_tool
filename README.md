@@ -36,8 +36,8 @@ An end-to-end AI-powered video clipping and repurposing platform. Ingests long-f
 
 | Service | Technology | Port | Directory | Description |
 |---|---|---|---|---|
-| **Frontend** | Next.js 15, React, TypeScript | `3000` | `frontend/` | Creator web app, dashboard, live progress viewer, campaign directory |
-| **Backend** | NestJS 11, TypeORM, better-sqlite3 | `3001` | `backend/` | Central API gateway, authentication, job lifecycle, rate limiting |
+| **Frontend** | Next.js 16, React, TypeScript | `3000` | `frontend/` | Creator web app, dashboard, live progress viewer, campaign directory |
+| **Backend** | NestJS 12, TypeORM, better-sqlite3 | `3001` | `backend/` | Central API gateway, authentication, job lifecycle, rate limiting |
 | **Python Service** | FastAPI, Uvicorn, Python 3.10+ | `8001` | `python-service/` | Job scheduling queue and background processing coordinator |
 | **Engine** | Python, OpenCV, YOLO, ffmpeg, Gemini | - | `engine/` | Media processing pipeline (download, transcribe, score, reframe, burn) |
 
@@ -99,7 +99,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 pip install -r ../engine/requirements.txt
 
-uvicorn app.main:app --host 0.0.0.0 --port 8001
+# Windows: the --loop asyncio flag is required (see python-service/README.md)
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --loop asyncio
 # → Running on http://127.0.0.1:8001
 ```
 
@@ -123,9 +124,9 @@ npm run dev
 
 ## Core Features
 
-- **Automated Moment Detection**: Uses Google Gemini 2.5 Flash to analyze transcripts and identify engaging hooks, emotional peaks, and concise takeaways.
+- **Automated Moment Detection**: Uses Google Gemini (model configurable via `GEMINI_MODEL`) to analyze transcripts and identify engaging hooks, emotional peaks, and concise takeaways.
 - **Smart 9:16 Reframe**: Uses YOLOv8 face detection to dynamically center and crop active speakers for vertical video.
 - **Animated Karaoke Subtitles**: Frame-accurate word-level ASS kinetic subtitle burn-in.
 - **Tier Limits & Usage Enforcement**: Free vs Pro limits enforced on duration, clip count, and daily quotas.
 - **Campaign Listings & Submissions**: Creators can browse monetization campaigns and log submissions.
-- **Protected Routing**: Edge middleware route protection redirecting unauthenticated users to `/login`.
+- **Protected Routing**: Next.js proxy route protection (`proxy.ts`) redirecting unauthenticated users to `/login`.

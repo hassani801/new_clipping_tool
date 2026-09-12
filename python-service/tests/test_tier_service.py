@@ -41,6 +41,12 @@ def test_select_provider_by_tier(monkeypatch):
     assert svc.select_provider(svc.get_or_create("bob")) == "faster_whisper"
 
 
+def test_watermark_enabled_by_tier():
+    svc = TierService(paid_user_ids=["alice"])
+    assert svc.watermark_enabled(svc.get_or_create("alice")) is False
+    assert svc.watermark_enabled(svc.get_or_create("bob")) is True
+
+
 def test_select_provider_env_override_wins(monkeypatch):
     monkeypatch.setenv("TRANSCRIPT_PROVIDER", "deepgram")
     svc = TierService(paid_user_ids=[])
@@ -52,9 +58,9 @@ def test_select_provider_env_override_wins(monkeypatch):
 
 def test_max_duration_seconds_by_tier(monkeypatch):
     monkeypatch.setattr(
-        "app.services.tier_service.settings.FREE_TIER_MAX_VIDEO_SECONDS", 600)
+        "app.services.tier_service.settings.FREE_TIER_MAX_DURATION_SECONDS", 600)
     monkeypatch.setattr(
-        "app.services.tier_service.settings.PAID_TIER_MAX_VIDEO_SECONDS", 1800)
+        "app.services.tier_service.settings.PAID_TIER_MAX_DURATION_SECONDS", 1800)
     svc = TierService(paid_user_ids=["alice"])
     assert svc.max_duration_seconds(svc.get_or_create("alice")) == 1800
     assert svc.max_duration_seconds(svc.get_or_create("bob")) == 600

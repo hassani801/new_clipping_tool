@@ -32,6 +32,7 @@ class JobExecutionState:
         user_id: Optional[str] = None,
         tier: str = "free",
         provider: str = "faster_whisper",
+        watermark_enabled: bool = False,
         max_duration_seconds: Optional[int] = None,
     ):
         self.job_id = job_id
@@ -39,6 +40,7 @@ class JobExecutionState:
         self.user_id = user_id or "anonymous"
         self.tier = tier
         self.provider = provider
+        self.watermark_enabled = watermark_enabled
         self.max_duration_seconds = max_duration_seconds
         self.source_duration_seconds: Optional[float] = None
         self.status = JobStatus.QUEUED
@@ -150,6 +152,7 @@ class BackgroundJobManager:
         user_id: Optional[str] = None,
         tier: str = "free",
         provider: str = "faster_whisper",
+        watermark_enabled: bool = False,
         max_duration_seconds: Optional[int] = None,
     ) -> JobStatusResponse:
         job_id = request.jobId
@@ -159,6 +162,7 @@ class BackgroundJobManager:
             user_id=user_id,
             tier=tier,
             provider=provider,
+            watermark_enabled=watermark_enabled,
             max_duration_seconds=max_duration_seconds,
         )
         state.status = JobStatus.QUEUED
@@ -169,7 +173,8 @@ class BackgroundJobManager:
 
         logger.info(
             f"[JOB] {job_id} started (engine={engine.name if engine else self.default_engine.name}, "
-            f"user={state.user_id}, tier={state.tier}, transcript_provider={state.provider})"
+            f"user={state.user_id}, tier={state.tier}, transcript_provider={state.provider}, "
+            f"watermark={state.watermark_enabled})"
         )
 
         target_engine = engine or self.default_engine
@@ -264,6 +269,7 @@ class BackgroundJobManager:
                 output_directory=str(job_dirs["outputs"]),
                 settings=request.settings,
                 transcript_provider=state.provider,
+                watermark_enabled=state.watermark_enabled,
             )
 
             output = await engine.process(engine_input, progress_callback=progress_hook)

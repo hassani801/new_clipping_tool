@@ -15,29 +15,27 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { UpgradeModal } from '@/components/pricing/upgrade-modal';
-import { getMe, toUserProfile } from '@/lib/api-client';
+import { getMe, toUserProfile, updateProfile } from '@/lib/api-client';
 import { UserProfile } from '@/lib/types';
 import { PRO_PRICE_PKR } from '@/lib/constants';
 import { formatPKR } from '@/lib/utils';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [displayName, setDisplayName] = useState('');
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Connected accounts mock toggles
-  const [connected, setConnected] = useState({
-    tiktok: true,
-    instagram: true,
-    youtube: false,
-  });
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     getMe()
       .then((u) => {
-        if (active && u) setUser(toUserProfile(u));
+        if (active && u) {
+          setUser(toUserProfile(u));
+          setDisplayName(u.name || u.email.split('@')[0] || '');
+        }
       })
       .catch(() => {});
     return () => {
@@ -46,13 +44,19 @@ export default function SettingsPage() {
   }, []);
 
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    setSaveError(null);
+    try {
+      const result = await updateProfile(displayName);
+      setUser(toUserProfile(result.user));
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 2000);
-    }, 600);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -139,25 +143,29 @@ export default function SettingsPage() {
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+            <span className="text-base">🚧</span>
+            <span>
+              <strong>Coming Soon:</strong> Social account connections aren&apos;t available yet. Direct publishing is in development.
+            </span>
+          </div>
+
+          <div className="space-y-3 opacity-60 pointer-events-none">
             {[
               {
                 id: 'tiktok',
                 name: 'TikTok Creator Account',
-                handle: '@alex.vance_official',
-                active: connected.tiktok,
+                handle: 'Not connected',
               },
               {
                 id: 'instagram',
                 name: 'Instagram Reels',
-                handle: '@alexvance.media',
-                active: connected.instagram,
+                handle: 'Not connected',
               },
               {
                 id: 'youtube',
                 name: 'YouTube Shorts Channel',
-                handle: 'Alex Vance Podcasts',
-                active: connected.youtube,
+                handle: 'Not connected',
               },
             ].map((account) => (
               <div
@@ -169,21 +177,12 @@ export default function SettingsPage() {
                     {account.name}
                   </span>
                   <span className="text-[11px] text-[#71717A]">
-                    {account.active ? account.handle : 'Not connected'}
+                    {account.handle}
                   </span>
                 </div>
 
-                <Button
-                  variant={account.active ? 'secondary' : 'outline'}
-                  size="sm"
-                  onClick={() =>
-                    setConnected((prev) => ({
-                      ...prev,
-                      [account.id]: !prev[account.id as keyof typeof prev],
-                    }))
-                  }
-                >
-                  {account.active ? 'Disconnect' : 'Connect Account'}
+                <Button variant="outline" size="sm" disabled>
+                  Coming Soon
                 </Button>
               </div>
             ))}
@@ -204,7 +203,8 @@ export default function SettingsPage() {
               </label>
               <input
                 type="text"
-                defaultValue={user?.name || 'Alex Vance'}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-[#0A0A0C] border border-white/10 text-xs text-[#F5F5F7] focus:outline-none focus:border-pink-500 transition"
               />
             </div>
@@ -215,11 +215,16 @@ export default function SettingsPage() {
               </label>
               <input
                 type="email"
-                defaultValue={user?.email || 'alex.creator@cliptor.io'}
-                className="w-full px-3 py-2 rounded-xl bg-[#0A0A0C] border border-white/10 text-xs text-[#F5F5F7] focus:outline-none focus:border-pink-500 transition"
+                value={user?.email || ''}
+                readOnly
+                className="w-full px-3 py-2 rounded-xl bg-[#0A0A0C] border border-white/10 text-xs text-[#71717A] focus:outline-none transition"
               />
             </div>
           </div>
+
+          {saveError && (
+            <p className="text-xs text-rose-400">{saveError}</p>
+          )}
 
           <div className="pt-2 flex justify-end">
             <Button

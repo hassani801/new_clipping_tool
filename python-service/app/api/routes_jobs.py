@@ -88,6 +88,7 @@ async def submit_job(request: CreateJobRequest):
     provider = (request.transcriptionProvider or "").strip().lower()
     if not provider:
         provider = default_tier_service.select_provider(tier_record)
+    watermark = default_tier_service.watermark_enabled(tier_record)
     max_duration = default_tier_service.max_duration_seconds(tier_record)
 
     # Free-tier daily job cap: usage records (completed jobs) + in-flight jobs.
@@ -128,6 +129,7 @@ async def submit_job(request: CreateJobRequest):
         user_id=tier_record.id,
         tier=tier.value,
         provider=provider,
+        watermark_enabled=watermark,
         max_duration_seconds=max_duration,
     )
 

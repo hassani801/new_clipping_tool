@@ -28,7 +28,9 @@ export default function SignupPage() {
       // Accounts are always created on the Free tier; Pro is a paid upgrade
       // applied later (see /pricing).
       await signup(email.trim(), password, name.trim() || undefined);
-      router.push('/dashboard');
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      router.push(redirect && redirect.startsWith('/') ? redirect : '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed');
       setLoading(false);

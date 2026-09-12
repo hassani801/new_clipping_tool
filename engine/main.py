@@ -1215,8 +1215,16 @@ def process_video_to_vertical(input_video, final_output_video, aspect_ratio=ASPE
     if os.environ.get("REFRAME_ENGINE", "v2").strip().lower() != "v1":
         try:
             import reframe_v2
+            import screencast_layout
+            _cap = cv2.VideoCapture(input_video)
+            _fps = _cap.get(cv2.CAP_PROP_FPS) or 30.0
+            _duration = int(_cap.get(cv2.CAP_PROP_FRAME_COUNT)) / _fps
+            _cap.release()
+            content_ranges = screencast_layout.detect_content_ranges(
+                input_video, _duration)
             t0 = time.time()
             result = reframe_v2.render(input_video, final_output_video, aspect_ratio,
+                                       content_ranges=content_ranges,
                                        force_strategy=force_strategy,
                                        crop_overrides=crop_overrides)
             print(f"   ⏱️ Reframe v2 total: {time.time() - t0:.1f}s")

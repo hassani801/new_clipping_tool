@@ -29,11 +29,8 @@ class Settings(BaseModel):
         os.getenv("STORAGE_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "../../storage")))
     )
     # Internal callback target for job results (NestJS backend on :3001).
-    # BACKEND_INTERNAL_URL is canonical; NEXTJS_INTERNAL_URL is accepted as a
-    # temporary alias so existing local .env files keep working.
     BACKEND_INTERNAL_URL: str = (
         os.getenv("BACKEND_INTERNAL_URL")
-        or os.getenv("NEXTJS_INTERNAL_URL")
         or "http://127.0.0.1:3001"
     )
     ENGINE_TYPE: str = os.getenv("ENGINE_TYPE", "openshort")
@@ -71,22 +68,19 @@ class Settings(BaseModel):
     # Comma-separated user ids treated as "paid" — only used when DEV_ALLOW_PAID_USER_IDS=1.
     PAID_USER_IDS: str = os.getenv("PAID_USER_IDS", "") if os.getenv("DEV_ALLOW_PAID_USER_IDS", "0").lower() in ("1", "true") else ""
     # Free tier: max jobs started per day (in-flight + completed today).
-    # Canonical name matches NestJS. Old FREE_TIER_DAILY_JOB_LIMIT still accepted.
+    # Canonical name matches NestJS (FREE_TIER_DAILY_JOB_CAP).
     FREE_TIER_DAILY_JOB_CAP: int = int(
         os.getenv("FREE_TIER_DAILY_JOB_CAP")
-        or os.getenv("FREE_TIER_DAILY_JOB_LIMIT")
         or "2"
     )
     # Max source duration per tier, checked before any processing starts.
-    # Canonical names match NestJS. Old *_MAX_VIDEO_SECONDS aliases still accepted.
+    # Canonical names match NestJS (*_MAX_DURATION_SECONDS).
     FREE_TIER_MAX_DURATION_SECONDS: int = int(
         os.getenv("FREE_TIER_MAX_DURATION_SECONDS")
-        or os.getenv("FREE_TIER_MAX_VIDEO_SECONDS")
         or "600"
     )
     PAID_TIER_MAX_DURATION_SECONDS: int = int(
         os.getenv("PAID_TIER_MAX_DURATION_SECONDS")
-        or os.getenv("PAID_TIER_MAX_VIDEO_SECONDS")
         or "1800"
     )
 
